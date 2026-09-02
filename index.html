@@ -1,0 +1,2339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,
+      initial-scale=1.0,
+      maximum-scale=1.0,
+      user-scalable=no">
+
+<title>Colindres Cell Game</title>
+
+<style>
+
+/* =========================================================
+   COLINDRES CELL GAME
+   ========================================================= */
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,
+body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:
+        linear-gradient(
+            135deg,
+            #03152f,
+            #0757b8,
+            #0c8eea
+        );
+    color:white;
+}
+
+/* =========================
+   BARRA SUPERIOR
+   ========================= */
+
+.topbar{
+    height:70px;
+    width:100%;
+    background:rgba(3,15,35,.95);
+    border-bottom:2px solid #21b8ff;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:6px 20px;
+
+    position:relative;
+    z-index:20;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    font-size:20px;
+    font-weight:900;
+    letter-spacing:.5px;
+}
+
+.brand img{
+    width:52px;
+    height:52px;
+
+    object-fit:cover;
+
+    border-radius:12px;
+
+    background:white;
+}
+
+/* =========================
+   HUD
+   ========================= */
+
+.hud{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.hud-box{
+    background:rgba(255,255,255,.1);
+
+    border:1px solid
+    rgba(255,255,255,.2);
+
+    border-radius:30px;
+
+    padding:8px 13px;
+
+    font-size:14px;
+    font-weight:bold;
+
+    backdrop-filter:blur(5px);
+}
+
+/* =========================
+   ÁREA DEL JUEGO
+   ========================= */
+
+.game-area{
+    width:100%;
+    height:calc(100vh - 70px);
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    position:relative;
+}
+
+canvas{
+    display:block;
+
+    width:min(1200px,100vw);
+
+    height:auto;
+
+    max-height:
+    calc(100vh - 90px);
+
+    background:#67d5ff;
+
+    border:3px solid white;
+
+    border-radius:16px;
+
+    box-shadow:
+        0 20px 70px
+        rgba(0,0,0,.55);
+}
+
+/* =========================
+   PANTALLA DE INICIO
+   ========================= */
+
+.start-screen{
+
+    position:absolute;
+
+    width:min(90%,480px);
+
+    padding:32px;
+
+    text-align:center;
+
+    background:
+        rgba(2,15,35,.95);
+
+    border:
+        2px solid #21b8ff;
+
+    border-radius:25px;
+
+    box-shadow:
+        0 20px 80px
+        rgba(0,0,0,.7);
+
+    z-index:10;
+}
+
+.start-screen h1{
+
+    font-size:36px;
+
+    margin-bottom:15px;
+
+    color:white;
+}
+
+.start-screen h2{
+
+    font-size:17px;
+
+    color:#21b8ff;
+
+    margin-bottom:15px;
+}
+
+.start-screen p{
+
+    font-size:15px;
+
+    line-height:1.6;
+
+    margin-bottom:15px;
+
+    color:#eaf7ff;
+}
+
+.play-button{
+
+    border:none;
+
+    padding:15px 35px;
+
+    border-radius:15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffd447,
+            #ff9d25
+        );
+
+    color:#07162d;
+
+    font-size:19px;
+
+    font-weight:900;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 8px 25px
+        rgba(255,180,50,.3);
+
+    transition:.2s;
+}
+
+.play-button:hover{
+
+    transform:
+        translateY(-2px)
+        scale(1.03);
+}
+
+.hidden{
+    display:none!important;
+}
+
+/* =========================
+   AYUDA
+   ========================= */
+
+.help{
+
+    position:absolute;
+
+    left:18px;
+    bottom:15px;
+
+    padding:9px 13px;
+
+    border-radius:10px;
+
+    background:
+        rgba(0,0,0,.5);
+
+    font-size:12px;
+
+    z-index:5;
+}
+
+/* =========================
+   CONTROLES MÓVILES
+   ========================= */
+
+.mobile-controls{
+
+    position:absolute;
+
+    bottom:14px;
+
+    left:15px;
+    right:15px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    pointer-events:none;
+
+    z-index:6;
+}
+
+.mobile-group{
+
+    display:flex;
+
+    gap:10px;
+}
+
+.control-button{
+
+    width:58px;
+    height:58px;
+
+    border:none;
+
+    border-radius:17px;
+
+    background:
+        rgba(3,20,45,.65);
+
+    border:
+        2px solid
+        rgba(255,255,255,.4);
+
+    color:white;
+
+    font-size:25px;
+
+    font-weight:900;
+
+    backdrop-filter:blur(5px);
+
+    pointer-events:auto;
+
+    touch-action:none;
+
+    user-select:none;
+
+    -webkit-user-select:none;
+}
+
+.control-button:active{
+
+    transform:scale(.92);
+
+    background:
+        rgba(33,184,255,.7);
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media(max-width:600px){
+
+    .topbar{
+
+        height:58px;
+
+        padding:
+        5px 9px;
+    }
+
+    .game-area{
+
+        height:
+        calc(100vh - 58px);
+    }
+
+    .brand{
+
+        font-size:13px;
+    }
+
+    .brand img{
+
+        width:42px;
+        height:42px;
+    }
+
+    .hud{
+
+        gap:4px;
+    }
+
+    .hud-box{
+
+        padding:
+        6px 8px;
+
+        font-size:11px;
+    }
+
+    .help{
+
+        display:none;
+    }
+
+    canvas{
+
+        border-radius:8px;
+
+        border-width:2px;
+    }
+
+    .start-screen{
+
+        padding:24px 18px;
+    }
+
+    .start-screen h1{
+
+        font-size:27px;
+    }
+
+    .start-screen p{
+
+        font-size:13px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- =========================================================
+     BARRA SUPERIOR
+     ========================================================= -->
+
+<header class="topbar">
+
+    <div class="brand">
+
+        <!-- Logo de Colindres Cell -->
+        <img
+            src="https://josephfarancisco-art.github.io/Colindres-Cell-web/assets/logo.jpg"
+            alt="Colindres Cell">
+
+        <span>
+            COLINDRES CELL GAME
+        </span>
+
+    </div>
+
+    <div class="hud">
+
+        <div class="hud-box">
+            ❤️ <span id="lives">3</span>
+        </div>
+
+        <div class="hud-box">
+            ⭐ <span id="score">0</span>
+        </div>
+
+        <div class="hud-box">
+            📱 Nivel <span id="level">1</span>
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =========================================================
+     JUEGO
+     ========================================================= -->
+
+<main class="game-area">
+
+    <canvas
+        id="game"
+        width="1200"
+        height="650">
+    </canvas>
+
+
+    <!-- =====================================================
+         PANTALLA INICIAL
+         ===================================================== -->
+
+    <section
+        id="startScreen"
+        class="start-screen">
+
+        <h1>
+            📱 Colindres Cell Game
+        </h1>
+
+        <h2>
+            ¡Defiende el mundo móvil!
+        </h2>
+
+        <p>
+            Controla al celular y recorre el mundo
+            de Colindres Cell.
+        </p>
+
+        <p>
+            🔌 Elimina cargadores<br>
+            🪢 Derrota cables<br>
+            🎧 Pisa los audífonos
+        </p>
+
+        <p>
+            ⭐ Recoge baterías para ganar puntos.
+        </p>
+
+        <p>
+            <b>PC:</b><br>
+            ← → / A D = Mover<br>
+            ESPACIO = Saltar
+        </p>
+
+        <button
+            id="playButton"
+            class="play-button">
+
+            ▶ JUGAR
+
+        </button>
+
+    </section>
+
+
+    <!-- =====================================================
+         AYUDA
+         ===================================================== -->
+
+    <div class="help">
+
+        ← → Mover
+        &nbsp; | &nbsp;
+        ESPACIO Saltar
+        &nbsp; | &nbsp;
+        Pisa a los enemigos
+
+    </div>
+
+
+    <!-- =====================================================
+         CONTROLES CELULAR
+         ===================================================== -->
+
+    <div class="mobile-controls">
+
+        <div class="mobile-group">
+
+            <button
+                class="control-button"
+                id="leftButton">
+
+                ◀
+
+            </button>
+
+            <button
+                class="control-button"
+                id="rightButton">
+
+                ▶
+
+            </button>
+
+        </div>
+
+
+        <div class="mobile-group">
+
+            <button
+                class="control-button"
+                id="jumpButton">
+
+                ▲
+
+            </button>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<script>
+
+/* ============================================================
+   COLINDRES CELL GAME
+   Juego estilo plataformas
+   ============================================================ */
+
+
+/* ============================================================
+   CANVAS
+   ============================================================ */
+
+const canvas =
+    document.getElementById("game");
+
+const ctx =
+    canvas.getContext("2d");
+
+
+const WIDTH = canvas.width;
+const HEIGHT = canvas.height;
+
+
+/* ============================================================
+   VARIABLES DEL JUEGO
+   ============================================================ */
+
+let running = false;
+
+let score = 0;
+
+let lives = 3;
+
+let level = 1;
+
+let cameraX = 0;
+
+let keys = {};
+
+
+/* ============================================================
+   FÍSICA
+   ============================================================ */
+
+const gravity = 0.65;
+
+const worldWidth = 3600;
+
+
+/* ============================================================
+   JUGADOR
+   ============================================================ */
+
+const player = {
+
+    x:90,
+
+    y:430,
+
+    width:58,
+
+    height:82,
+
+    velocityX:0,
+
+    velocityY:0,
+
+    speed:4,
+
+    jumpPower:13,
+
+    onGround:false
+
+};
+
+
+/* ============================================================
+   PLATAFORMAS
+   ============================================================ */
+
+let platforms = [];
+
+
+/* ============================================================
+   ENEMIGOS
+   ============================================================ */
+
+let enemies = [];
+
+
+/* ============================================================
+   OBJETOS
+   ============================================================ */
+
+let items = [];
+
+
+/* ============================================================
+   CREAR ENEMIGO
+   ============================================================ */
+
+function createEnemy(
+    x,
+    y,
+    type
+){
+
+    return {
+
+        x:x,
+
+        y:y,
+
+        width:52,
+
+        height:36,
+
+        velocity:.6,
+
+        direction:1,
+
+        type:type,
+
+        alive:true
+
+    };
+
+}
+
+
+/* ============================================================
+   CREAR ITEM
+   ============================================================ */
+
+function createItem(
+    x,
+    y
+){
+
+    return {
+
+        x:x,
+
+        y:y,
+
+        width:24,
+
+        height:24,
+
+        collected:false,
+
+        animation:
+            Math.random()*10
+
+    };
+
+}
+
+
+/* ============================================================
+   CONSTRUIR NIVEL
+   ============================================================ */
+
+function buildLevel(){
+
+    platforms = [
+
+        {
+            x:0,
+            y:560,
+            width:650,
+            height:90
+        },
+
+        {
+            x:760,
+            y:500,
+            width:390,
+            height:150
+        },
+
+        {
+            x:1240,
+            y:560,
+            width:580,
+            height:90
+        },
+
+        {
+            x:1920,
+            y:480,
+            width:420,
+            height:170
+        },
+
+        {
+            x:2450,
+            y:550,
+            width:650,
+            height:100
+        },
+
+        {
+            x:3220,
+            y:470,
+            width:380,
+            height:180
+        },
+
+
+        /* Plataformas elevadas */
+
+        {
+            x:540,
+            y:430,
+            width:120,
+            height:25
+        },
+
+        {
+            x:930,
+            y:390,
+            width:150,
+            height:25
+        },
+
+        {
+            x:1430,
+            y:430,
+            width:150,
+            height:25
+        },
+
+        {
+            x:1740,
+            y:350,
+            width:130,
+            height:25
+        },
+
+        {
+            x:2180,
+            y:350,
+            width:150,
+            height:25
+        },
+
+        {
+            x:2650,
+            y:390,
+            width:160,
+            height:25
+        },
+
+        {
+            x:3000,
+            y:300,
+            width:150,
+            height:25
+        }
+
+    ];
+
+
+    enemies = [
+
+        createEnemy(
+            420,
+            505,
+            "charger"
+        ),
+
+        createEnemy(
+            850,
+            445,
+            "cable"
+        ),
+
+        createEnemy(
+            1040,
+            335,
+            "headphones"
+        ),
+
+        createEnemy(
+            1380,
+            505,
+            "charger"
+        ),
+
+        createEnemy(
+            1640,
+            505,
+            "cable"
+        ),
+
+        createEnemy(
+            2030,
+            425,
+            "headphones"
+        ),
+
+        createEnemy(
+            2240,
+            425,
+            "charger"
+        ),
+
+        createEnemy(
+            2580,
+            495,
+            "cable"
+        ),
+
+        createEnemy(
+            2850,
+            495,
+            "headphones"
+        ),
+
+        createEnemy(
+            3370,
+            415,
+            "charger"
+        )
+
+    ];
+
+
+    items = [
+
+        createItem(250,500),
+
+        createItem(580,380),
+
+        createItem(980,340),
+
+        createItem(1500,510),
+
+        createItem(1780,300),
+
+        createItem(2250,300),
+
+        createItem(2720,340),
+
+        createItem(3060,250),
+
+        createItem(3310,410)
+
+    ];
+
+}
+
+
+/* ============================================================
+   REINICIAR
+   ============================================================ */
+
+function resetGame(){
+
+    player.x = 90;
+
+    player.y = 430;
+
+    player.velocityX = 0;
+
+    player.velocityY = 0;
+
+    cameraX = 0;
+
+    buildLevel();
+
+}
+
+
+/* ============================================================
+   COLISIONES
+   ============================================================ */
+
+function collision(a,b){
+
+    return (
+
+        a.x < b.x+b.width &&
+
+        a.x+a.width > b.x &&
+
+        a.y < b.y+b.height &&
+
+        a.y+a.height > b.y
+
+    );
+
+}
+
+
+/* ============================================================
+   FONDO
+   ============================================================ */
+
+function drawBackground(){
+
+    const gradient =
+        ctx.createLinearGradient(
+            0,
+            0,
+            0,
+            HEIGHT
+        );
+
+    gradient.addColorStop(
+        0,
+        "#4ecbff"
+    );
+
+    gradient.addColorStop(
+        1,
+        "#e6faff"
+    );
+
+    ctx.fillStyle =
+        gradient;
+
+    ctx.fillRect(
+        0,
+        0,
+        WIDTH,
+        HEIGHT
+    );
+
+
+    /* Nubes */
+
+    ctx.fillStyle =
+        "rgba(255,255,255,.75)";
+
+    for(
+        let i=0;
+        i<8;
+        i++
+    ){
+
+        const cloudX =
+            (
+                i*240 -
+                cameraX*.15
+            )%1400 - 150;
+
+        const cloudY =
+            80 +
+            (i%3)*50;
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            cloudX,
+            cloudY,
+            35,
+            0,
+            Math.PI*2
+        );
+
+        ctx.arc(
+            cloudX+40,
+            cloudY-10,
+            45,
+            0,
+            Math.PI*2
+        );
+
+        ctx.arc(
+            cloudX+85,
+            cloudY,
+            32,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+    }
+
+
+    /* Montañas */
+
+    ctx.fillStyle =
+        "#1474b8";
+
+    for(
+        let i=0;
+        i<10;
+        i++
+    ){
+
+        const mountainX =
+            (
+                i*210 -
+                cameraX*.3
+            )%1500 - 200;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            mountainX,
+            520
+        );
+
+        ctx.lineTo(
+            mountainX+90,
+            310
+        );
+
+        ctx.lineTo(
+            mountainX+180,
+            520
+        );
+
+        ctx.fill();
+
+    }
+
+}
+
+
+/* ============================================================
+   DIBUJAR PLATAFORMA
+   ============================================================ */
+
+function drawPlatform(platform){
+
+    const x =
+        platform.x-cameraX;
+
+
+    ctx.fillStyle =
+        "#0b3d7a";
+
+    ctx.fillRect(
+        x,
+        platform.y,
+        platform.width,
+        platform.height
+    );
+
+
+    /* Borde azul */
+
+    ctx.fillStyle =
+        "#21b8ff";
+
+    ctx.fillRect(
+        x,
+        platform.y,
+        platform.width,
+        9
+    );
+
+
+    /* Detalles */
+
+    ctx.fillStyle =
+        "#082b54";
+
+    for(
+        let px=platform.x;
+        px<platform.x+platform.width;
+        px+=42
+    ){
+
+        ctx.fillRect(
+            px-cameraX,
+            platform.y+25,
+            28,
+            5
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   DIBUJAR CELULAR
+   ============================================================ */
+
+function drawPlayer(){
+
+    const x =
+        player.x-cameraX;
+
+    const y =
+        player.y;
+
+
+    ctx.save();
+
+
+    /* Sombra */
+
+    ctx.shadowColor =
+        "#0757b8";
+
+    ctx.shadowBlur =
+        20;
+
+
+    /* Cuerpo */
+
+    ctx.fillStyle =
+        "#ffffff";
+
+    roundedRect(
+        x,
+        y,
+        player.width,
+        player.height,
+        13
+    );
+
+
+    ctx.shadowBlur = 0;
+
+
+    /* Pantalla */
+
+    ctx.fillStyle =
+        "#0757b8";
+
+    roundedRect(
+        x+7,
+        y+9,
+        44,
+        60,
+        8
+    );
+
+
+    /* Brillo pantalla */
+
+    ctx.fillStyle =
+        "#21b8ff";
+
+    ctx.fillRect(
+        x+12,
+        y+16,
+        34,
+        37
+    );
+
+
+    /* Cámara */
+
+    ctx.fillStyle =
+        "#06152b";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x+29,
+        y+69,
+        4,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    /* Auricular */
+
+    ctx.fillStyle =
+        "#ffd447";
+
+    ctx.fillRect(
+        x+18,
+        y+3,
+        22,
+        4
+    );
+
+
+    ctx.restore();
+
+}
+
+
+/* ============================================================
+   DIBUJAR ENEMIGOS
+   ============================================================ */
+
+function drawEnemy(enemy){
+
+    const x =
+        enemy.x-cameraX;
+
+    const y =
+        enemy.y;
+
+
+    ctx.save();
+
+    /* CARGADOR */
+
+    if(
+        enemy.type ===
+        "charger"
+    ){
+
+        ctx.fillStyle =
+            "#f4f4f4";
+
+        roundedRect(
+            x,
+            y+6,
+            52,
+            28,
+            8
+        );
+
+
+        ctx.fillStyle =
+            "#ffd447";
+
+        ctx.fillRect(
+            x+18,
+            y,
+            16,
+            9
+        );
+
+
+        /* Ojos */
+
+        ctx.fillStyle =
+            "#111";
+
+        ctx.fillRect(
+            x+11,
+            y+15,
+            8,
+            5
+        );
+
+        ctx.fillRect(
+            x+34,
+            y+15,
+            8,
+            5
+        );
+
+
+        /* Boca */
+
+        ctx.fillStyle =
+            "#ff3850";
+
+        ctx.fillRect(
+            x+20,
+            y+24,
+            12,
+            4
+        );
+
+    }
+
+
+    /* CABLE */
+
+    else if(
+        enemy.type ===
+        "cable"
+    ){
+
+        ctx.strokeStyle =
+            "#202f45";
+
+        ctx.lineWidth = 9;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x+2,
+            y+28
+        );
+
+        ctx.bezierCurveTo(
+            x+10,
+            y-5,
+            x+38,
+            y+45,
+            x+50,
+            y+10
+        );
+
+        ctx.stroke();
+
+
+        /* Conectores */
+
+        ctx.fillStyle =
+            "#d8e0ea";
+
+        ctx.fillRect(
+            x,
+            y+21,
+            12,
+            10
+        );
+
+        ctx.fillRect(
+            x+43,
+            y+5,
+            10,
+            13
+        );
+
+    }
+
+
+    /* AUDÍFONOS */
+
+    else{
+
+        ctx.fillStyle =
+            "#202b3b";
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x+18,
+            y+18,
+            15,
+            0,
+            Math.PI*2
+        );
+
+        ctx.arc(
+            x+40,
+            y+18,
+            15,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+
+        ctx.fillStyle =
+            "#21b8ff";
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x+18,
+            y+18,
+            7,
+            0,
+            Math.PI*2
+        );
+
+        ctx.arc(
+            x+40,
+            y+18,
+            7,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+
+        /* Ojos */
+
+        ctx.fillStyle =
+            "#ff4055";
+
+        ctx.fillRect(
+            x+14,
+            y+22,
+            6,
+            4
+        );
+
+        ctx.fillRect(
+            x+34,
+            y+22,
+            6,
+            4
+        );
+
+    }
+
+
+    ctx.restore();
+
+}
+
+
+/* ============================================================
+   DIBUJAR BATERÍAS
+   ============================================================ */
+
+function drawItem(item){
+
+    if(item.collected)
+        return;
+
+
+    const x =
+        item.x-cameraX;
+
+    const y =
+        item.y +
+        Math.sin(
+            Date.now()/180+
+            item.animation
+        )*5;
+
+
+    ctx.save();
+
+
+    ctx.shadowColor =
+        "#ffffff";
+
+    ctx.shadowBlur =
+        15;
+
+
+    ctx.fillStyle =
+        "#ffd447";
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x+12,
+        y+12,
+        12,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    ctx.shadowBlur = 0;
+
+
+    ctx.fillStyle =
+        "#0757b8";
+
+
+    ctx.fillRect(
+        x+9,
+        y+5,
+        6,
+        14
+    );
+
+    ctx.fillRect(
+        x+5,
+        y+9,
+        14,
+        6
+    );
+
+
+    ctx.restore();
+
+}
+
+
+/* ============================================================
+   RECTÁNGULO REDONDEADO
+   ============================================================ */
+
+function roundedRect(
+    x,
+    y,
+    width,
+    height,
+    radius
+){
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        x,
+        y,
+        width,
+        height,
+        radius
+    );
+
+    ctx.fill();
+
+}
+
+
+/* ============================================================
+   ACTUALIZAR JUGADOR
+   ============================================================ */
+
+function updatePlayer(){
+
+    const left =
+        keys.ArrowLeft ||
+        keys.a ||
+        keys.A;
+
+    const right =
+        keys.ArrowRight ||
+        keys.d ||
+        keys.D;
+
+
+    /* Movimiento */
+
+    player.velocityX = 0;
+
+
+    if(left)
+        player.velocityX =
+            -player.speed;
+
+
+    if(right)
+        player.velocityX =
+            player.speed;
+
+
+    /* Gravedad */
+
+    player.velocityY +=
+        gravity;
+
+
+    player.x +=
+        player.velocityX;
+
+    player.y +=
+        player.velocityY;
+
+
+    player.onGround =
+        false;
+
+
+    /* Colisión plataformas */
+
+    for(
+        const platform
+        of platforms
+    ){
+
+        if(
+
+            player.x+
+            player.width >
+            platform.x &&
+
+            player.x <
+            platform.x+
+            platform.width &&
+
+            player.y+
+            player.height <=
+            platform.y+15 &&
+
+            player.y+
+            player.height+
+            player.velocityY >=
+            platform.y
+
+        ){
+
+            player.y =
+                platform.y-
+                player.height;
+
+            player.velocityY =
+                0;
+
+            player.onGround =
+                true;
+
+        }
+
+    }
+
+
+    /* Salto */
+
+    if(
+        keys[" "] &&
+        player.onGround
+    ){
+
+        player.velocityY =
+            -player.jumpPower;
+
+        keys[" "] =
+            false;
+
+    }
+
+
+    /* Límites */
+
+    if(
+        player.x < 0
+    ){
+
+        player.x = 0;
+
+    }
+
+
+    if(
+        player.x >
+        worldWidth-
+        player.width
+    ){
+
+        player.x =
+            worldWidth-
+            player.width;
+
+    }
+
+}
+
+
+/* ============================================================
+   ACTUALIZAR ENEMIGOS
+   ============================================================ */
+
+function updateEnemies(){
+
+    for(
+        const enemy
+        of enemies
+    ){
+
+        if(!enemy.alive)
+            continue;
+
+
+        enemy.x +=
+            enemy.velocity*
+            enemy.direction;
+
+
+        /* Cambiar dirección */
+
+        if(
+            enemy.x < 0 ||
+            enemy.x >
+            worldWidth
+        ){
+
+            enemy.direction *=
+                -1;
+
+        }
+
+
+        /* Colisión */
+
+        if(
+            collision(
+                player,
+                enemy
+            )
+        ){
+
+            /* Saltar encima */
+
+            if(
+
+                player.velocityY > 2 &&
+
+                player.y+
+                player.height <
+                enemy.y+20
+
+            ){
+
+                enemy.alive =
+                    false;
+
+                score +=
+                    100;
+
+                player.velocityY =
+                    -8;
+
+            }
+
+            /* Golpe */
+
+            else{
+
+                loseLife();
+
+            }
+
+        }
+
+    }
+
+}
+
+
+/* ============================================================
+   ITEMS
+   ============================================================ */
+
+function updateItems(){
+
+    for(
+        const item
+        of items
+    ){
+
+        if(
+            item.collected
+        )
+            continue;
+
+
+        if(
+            collision(
+                player,
+                item
+            )
+        ){
+
+            item.collected =
+                true;
+
+            score +=
+                25;
+
+        }
+
+    }
+
+}
+
+
+/* ============================================================
+   PERDER VIDA
+   ============================================================ */
+
+function loseLife(){
+
+    lives--;
+
+
+    player.x =
+        Math.max(
+            50,
+            player.x-180
+        );
+
+    player.y =
+        300;
+
+    player.velocityY =
+        0;
+
+
+    if(
+        lives <= 0
+    ){
+
+        gameOver();
+
+    }
+
+}
+
+
+/* ============================================================
+   CAER DEL MAPA
+   ============================================================ */
+
+function checkFall(){
+
+    if(
+        player.y >
+        HEIGHT+100
+    ){
+
+        loseLife();
+
+    }
+
+}
+
+
+/* ============================================================
+   CÁMARA
+   ============================================================ */
+
+function updateCamera(){
+
+    cameraX =
+        Math.max(
+            0,
+            Math.min(
+                worldWidth-WIDTH,
+                player.x-WIDTH*.35
+            )
+        );
+
+}
+
+
+/* ============================================================
+   GANAR
+   ============================================================ */
+
+function checkWin(){
+
+    if(
+        player.x >
+        worldWidth-260
+    ){
+
+        level++;
+
+        score +=
+            500;
+
+        gameWin();
+
+    }
+
+}
+
+
+/* ============================================================
+   HUD
+   ============================================================ */
+
+function updateHUD(){
+
+    document.getElementById(
+        "score"
+    ).textContent =
+        score;
+
+
+    document.getElementById(
+        "lives"
+    ).textContent =
+        lives;
+
+
+    document.getElementById(
+        "level"
+    ).textContent =
+        level;
+
+}
+
+
+/* ============================================================
+   GAME OVER
+   ============================================================ */
+
+function gameOver(){
+
+    running =
+        false;
+
+
+    const screen =
+        document.getElementById(
+            "startScreen"
+        );
+
+
+    screen.classList.remove(
+        "hidden"
+    );
+
+
+    screen.querySelector(
+        "h1"
+    ).textContent =
+        "💥 GAME OVER";
+
+
+    screen.querySelector(
+        "h2"
+    ).textContent =
+        "El mundo móvil necesita otro héroe";
+
+
+    screen.querySelector(
+        "p"
+    ).innerHTML =
+        "Puntuación final: <b>"+
+        score+
+        "</b><br><br>"+
+        "¡Vuelve a intentarlo!";
+
+
+    document.getElementById(
+        "playButton"
+    ).textContent =
+        "🔄 JUGAR DE NUEVO";
+
+}
+
+
+/* ============================================================
+   VICTORIA
+   ============================================================ */
+
+function gameWin(){
+
+    running =
+        false;
+
+
+    const screen =
+        document.getElementById(
+            "startScreen"
+        );
+
+
+    screen.classList.remove(
+        "hidden"
+    );
+
+
+    screen.querySelector(
+        "h1"
+    ).textContent =
+        "🏆 ¡VICTORIA!";
+
+
+    screen.querySelector(
+        "h2"
+    ).textContent =
+        "¡Colindres Cell salvó el mundo móvil!";
+
+
+    screen.querySelector(
+        "p"
+    ).innerHTML =
+        "Puntuación final: <b>"+
+        score+
+        "</b><br><br>"+
+        "¡Excelente trabajo!";
+
+
+    document.getElementById(
+        "playButton"
+    ).textContent =
+        "🎮 JUGAR OTRA VEZ";
+
+}
+
+
+/* ============================================================
+   ACTUALIZAR TODO
+   ============================================================ */
+
+function update(){
+
+    if(!running)
+        return;
+
+
+    updatePlayer();
+
+    updateEnemies();
+
+    updateItems();
+
+    checkFall();
+
+    updateCamera();
+
+    checkWin();
+
+    updateHUD();
+
+}
+
+
+/* ============================================================
+   DIBUJAR TODO
+   ============================================================ */
+
+function render(){
+
+    drawBackground();
+
+
+    /* Plataformas */
+
+    for(
+        const platform
+        of platforms
+    ){
+
+        drawPlatform(
+            platform
+        );
+
+    }
+
+
+    /* Objetos */
+
+    for(
+        const item
+        of items
+    ){
+
+        drawItem(
+            item
+        );
+
+    }
+
+
+    /* Enemigos */
+
+    for(
+        const enemy
+        of enemies
+    ){
+
+        if(
+            enemy.alive
+        ){
+
+            drawEnemy(
+                enemy
+            );
+
+        }
+
+    }
+
+
+    /* Jugador */
+
+    drawPlayer();
+
+
+    /* Marca */
+
+    ctx.fillStyle =
+        "#06152b";
+
+    ctx.font =
+        "bold 16px Arial";
+
+    ctx.fillText(
+        "COLINDRES CELL",
+        30,
+        35
+    );
+
+}
+
+
+/* ============================================================
+   BUCLE
+   ============================================================ */
+
+function gameLoop(){
+
+    update();
+
+    render();
+
+    requestAnimationFrame(
+        gameLoop
+    );
+
+}
+
+
+/* ============================================================
+   BOTÓN JUGAR
+   ============================================================ */
+
+document.getElementById(
+    "playButton"
+).addEventListener(
+    "click",
+    function(){
+
+        score = 0;
+
+        lives = 3;
+
+        level = 1;
+
+        resetGame();
+
+        running = true;
+
+        document.getElementById(
+            "startScreen"
+        ).classList.add(
+            "hidden"
+        );
+
+        updateHUD();
+
+    }
+);
+
+
+/* ============================================================
+   TECLADO
+   ============================================================ */
+
+window.addEventListener(
+    "keydown",
+    function(event){
+
+        keys[event.key] =
+            true;
+
+
+        if(
+            event.key ===
+            "ArrowLeft" ||
+
+            event.key ===
+            "ArrowRight" ||
+
+            event.key ===
+            " "
+        ){
+
+            event.preventDefault();
+
+        }
+
+    }
+);
+
+
+window.addEventListener(
+    "keyup",
+    function(event){
+
+        keys[event.key] =
+            false;
+
+    }
+);
+
+
+/* ============================================================
+   CONTROLES TÁCTILES
+   ============================================================ */
+
+function mobileButton(
+    id,
+    key
+){
+
+    const button =
+        document.getElementById(
+            id
+        );
+
+
+    button.addEventListener(
+        "pointerdown",
+        function(event){
+
+            event.preventDefault();
+
+            keys[key] =
+                true;
+
+        }
+    );
+
+
+    button.addEventListener(
+        "pointerup",
+        function(event){
+
+            event.preventDefault();
+
+            keys[key] =
+                false;
+
+        }
+    );
+
+
+    button.addEventListener(
+        "pointercancel",
+        function(){
+
+            keys[key] =
+                false;
+
+        }
+    );
+
+
+    button.addEventListener(
+        "pointerleave",
+        function(){
+
+            keys[key] =
+                false;
+
+        }
+    );
+
+}
+
+
+mobileButton(
+    "leftButton",
+    "ArrowLeft"
+);
+
+mobileButton(
+    "rightButton",
+    "ArrowRight"
+);
+
+mobileButton(
+    "jumpButton",
+    " "
+);
+
+
+/* ============================================================
+   INICIAR
+   ============================================================ */
+
+resetGame();
+
+updateHUD();
+
+gameLoop();
+
+</script>
+
+</body>
+</html>
