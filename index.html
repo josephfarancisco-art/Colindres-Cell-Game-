@@ -2326,6 +2326,13 @@ mobileButton(
 /* ============================================================
    INICIAR
    ============================================================ */
+
+resetGame();
+
+updateHUD();
+
+gameLoop();
+
 const musica = document.getElementById('musicaFondo');
 musica.volume = 0.4;
 
@@ -2340,13 +2347,6 @@ function iniciarMusica() {
 window.addEventListener('click', iniciarMusica);
 window.addEventListener('keydown', iniciarMusica);
 window.addEventListener('touchstart', iniciarMusica);
-
-resetGame();
-
-updateHUD();
-
-gameLoop();
-
 
 </script>
 <audio id="musicaFondo" loop src="viacheslavstarostin-gaming-game-video-game-music-474517.mp3"></audio>
