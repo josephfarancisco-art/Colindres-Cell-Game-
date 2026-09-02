@@ -2326,6 +2326,20 @@ mobileButton(
 /* ============================================================
    INICIAR
    ============================================================ */
+const musica = document.getElementById('musicaFondo');
+musica.volume = 0.4;
+
+function iniciarMusica() {
+    musica.play().then(() => {
+        window.removeEventListener('click', iniciarMusica);
+        window.removeEventListener('keydown', iniciarMusica);
+        window.removeEventListener('touchstart', iniciarMusica);
+    }).catch(() => {});
+}
+
+window.addEventListener('click', iniciarMusica);
+window.addEventListener('keydown', iniciarMusica);
+window.addEventListener('touchstart', iniciarMusica);
 
 resetGame();
 
@@ -2333,7 +2347,8 @@ updateHUD();
 
 gameLoop();
 
-</script>
 
+</script>
+<audio id="musicaFondo" loop src="musica.mp3"></audio>
 </body>
 </html>
